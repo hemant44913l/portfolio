@@ -1,0 +1,40 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * Digital Humanities Portfolio Security Rules (Firebase Spark Free Tier)
+     *
+     * Principles:
+     * 1. Public Read: Any visitor can view the portfolio document (get only).
+     * 2. Listing Denied: Visitors cannot list collections or run unindexed queries.
+     * 3. Owner-Only Writes: Only the authenticated owner UID can create or update.
+     * 4. Deletion Denied: Public and authenticated users cannot delete the portfolio.
+     * 5. Default Deny: All other collections and documents are closed.
+     *
+     * DEPLOYMENT STEP:
+     * Replace `<FIREBASE_OWNER_UID>` below with the exact UID obtained from:
+     * Firebase Console -> Authentication -> Users -> User UID column.
+     */
+    match /portfolio/{document=main} {
+      // Public visitors can read the main portfolio document
+      allow get: if true;
+
+      // Collection queries / list denied
+      allow list: if false;
+
+      // Only the designated owner UID can create or update the portfolio document
+      allow create, update: if request.auth != null
+                            && request.auth.uid == '<FIREBASE_OWNER_UID>';
+
+      // Prevent deletion of the portfolio document
+      allow delete: if false;
+    }
+
+    // Default deny for all other collections and documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

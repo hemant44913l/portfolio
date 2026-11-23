@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/.firebase/
+**/service-account*.json
+**/*serviceAccount*.json
